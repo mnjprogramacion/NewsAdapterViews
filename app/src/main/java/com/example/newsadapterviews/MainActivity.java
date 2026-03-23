@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout container;
 
     // URL pública de Google Sheets exportada como CSV
-    private static final String CSV_URL = "";
+    private static final String CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRr3-LdTANTCbj0ojujZRxBttAdkwjLtwIIY7XT4SMCDZoBLSW8NqAQPS7BfuO2nn5AByiqS31x6kaJ/pub?gid=0&single=true&output=csv";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
