@@ -28,7 +28,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private List<NewsItem> newsList = new ArrayList<>();
-    private NewsAdapter adapter;
+    private NewsBaseAdapter baseAdapter;
     private FrameLayout container;
 
     // URL pública de Google Sheets exportada como CSV
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         container = findViewById(R.id.container);
-        adapter = new NewsAdapter(this, newsList);
+        baseAdapter = new NewsBaseAdapter(newsList);
 
         Spinner spinner = findViewById(R.id.spinnerViewType);
         String[] viewTypes = {"ListView", "GridView", "StackView", "Gallery"};
@@ -68,29 +68,37 @@ public class MainActivity extends AppCompatActivity {
     private void showAdapterView(String type) {
         container.removeAllViews();
         AdapterView adapterView;
+        int layoutRes;
 
         switch (type) {
             case "GridView":
                 GridView grid = new GridView(this);
                 grid.setNumColumns(2);
                 adapterView = grid;
+                layoutRes = R.layout.item_news;
                 break;
             case "StackView":
                 adapterView = new StackView(this);
+                layoutRes = R.layout.item_news_stack;
                 break;
             case "Gallery":
                 Gallery gallery = new Gallery(this);
                 gallery.setSpacing(8);
                 adapterView = gallery;
+                layoutRes = R.layout.item_news_stack;
                 break;
             default:
                 adapterView = new ListView(this);
+                layoutRes = R.layout.item_news;
                 break;
         }
 
+        // Crear un wrapper del adaptador base con el layout adecuado
+        NewsAdapterWrapper wrapper = new NewsAdapterWrapper(this, baseAdapter, layoutRes);
+
         adapterView.setLayoutParams(new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        adapterView.setAdapter(adapter);
+        adapterView.setAdapter(wrapper);
         adapterView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(MainActivity.this, DetailActivity.class);
             intent.putExtra("news", newsList.get(position));
@@ -124,7 +132,10 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     newsList.clear();
                     newsList.addAll(items);
-                    adapter.notifyDataSetChanged();
+                    baseAdapter.notifyDataSetChanged();
+                    // Refrescar la vista actual
+                    Spinner sp = findViewById(R.id.spinnerViewType);
+                    showAdapterView(sp.getSelectedItem().toString());
                 });
             } catch (Exception e) {
                 e.printStackTrace();
